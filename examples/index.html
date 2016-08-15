@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>THREE.Capturer</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/index.css">
+    </head>
+    <body>
+        <script src="js/three.r79.min.js"></script>
+        <script src="js/OrbitControls.js"></script>
+        <script src="js/capturer.js"></script>
+        <script src="js/oui.min.js"></script>
+        <script>
+
+        var time = 0;
+        var renderer, scene, camera;
+        var capturer, odsMethod, cubeMethod;
+
+        window.addEventListener( 'load', init);
+
+        function init() {
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setClearColor( 0xf0f0f0 );
+            document.body.appendChild(renderer.domElement);
+
+            camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
+            camera.position.set( 1,1,1 );
+
+            scene = new THREE.Scene();
+
+            capturer = new THREE.Capturer({
+                renderer : renderer,
+                camera : camera,
+                scene : scene
+            });
+            odsMethod = new THREE.Capturer.methods.ODS();
+            cubeMethod = new THREE.Capturer.methods.Cube();
+
+            controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+            var light = new THREE.DirectionalLight( 0xffffff, 1 );
+            light.position.set( 1, 1, 1 ).normalize();
+            scene.add( light );
+
+            var geometry = new THREE.BoxBufferGeometry( 0.2, 0.2, 0.2 );
+
+            for ( var i = 0; i < 2000; i ++ ) {
+
+                var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+
+                object.position.x = Math.random() * 8 - 4;
+                object.position.y = Math.random() * 8 - 4;
+                object.position.z = Math.random() * 8 - 4;
+
+                object.rotation.x = Math.random() * 2 * Math.PI;
+                object.rotation.y = Math.random() * 2 * Math.PI;
+                object.rotation.z = Math.random() * 2 * Math.PI;
+
+                object.scale.x = Math.random() + 0.5;
+                object.scale.y = Math.random() + 0.5;
+                object.scale.z = Math.random() + 0.5;
+
+                scene.add( object );
+
+            }
+
+            window.addEventListener('resize', onResize);
+
+            var guiConfig = {
+                captureODS: captureMethod.bind(this, odsMethod),
+                captureCube: captureMethod.bind(this, cubeMethod)
+            };
+            var oui = window.oui;
+            gui = oui.datoui({ label: 'capturer', open: true });
+            gui.add(guiConfig, 'captureODS');
+            gui.add(guiConfig, 'captureCube');
+
+            onResize();
+            resetTime();
+            animate();
+        }
+
+        function onResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize( window.innerWidth, window.innerHeight );
+
+        }
+
+        function resetTime() {
+            time = Date.now();
+        }
+
+        function animate() {
+            var newTime = Date.now();
+            requestAnimationFrame(animate);
+            render((newTime - time) / 1000);
+            time = newTime;
+        }
+
+        function render(dt) {
+
+            renderer.render(scene, camera);
+
+        }
+
+        function captureMethod(method) {
+            capturer.method = method;
+            capture();
+        }
+
+        function capture() {
+            // capturer.method = cubeMethod;
+            capturer.method = cubeMethod;
+            capturer.render();
+            capturer.capture(function(){
+                console.log('complete');
+                onResize();
+            });
+        }
+
+        </script>
+    </body>
+</html>
