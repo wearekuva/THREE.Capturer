@@ -73,8 +73,8 @@
             window.addEventListener('resize', onResize);
 
             var guiConfig = {
-                captureODS: captureMethod.bind(this, odsMethod),
-                captureCube: captureMethod.bind(this, cubeMethod)
+                captureODS: capture.bind(this, odsMethod),
+                captureCube: capture.bind(this, cubeMethod)
             };
             var oui = window.oui;
             gui = oui.datoui({ label: 'capturer', open: true });
@@ -112,14 +112,8 @@
 
         }
 
-        function captureMethod(method) {
+        function capture(method) {
             capturer.method = method;
-            capture();
-        }
-
-        function capture() {
-            // capturer.method = cubeMethod;
-            capturer.method = cubeMethod;
             capturer.render();
             capturer.capture(function(){
                 console.log('complete');
