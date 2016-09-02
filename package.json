@@ -28,6 +28,6 @@
     "dev": "node dev.js",
     "build": "node build.js"
   },
-  "author": "",
+  "author": "Edan Kwan @ KUVA",
   "license": "MIT"
 }

@@ -14,17 +14,17 @@ var CUBE_CAMERA_SETTINGS = {
 
 function MethodCube(cfg) {
     _super.constructor.call(this, mixIn({
-        method: 'Cube',
-        width: 4096,
-        height: 2048,
+        method: 'Equirectangular',
+        size: 4096,
         cubeSize: 2048,
-        cubeSideCameras: {}
     }, cfg));
-
+    this.width = this.size;
+    this.height = this.width >> 1;
     this.cubeRenderTarget = new THREE.WebGLRenderTargetCube(this.cubeSize, this.cubeSize, {
         format: THREE.RGBFormat, magFilter: THREE.LinearFilter, minFilter: THREE.LinearFilter
     });
 
+    this.cubeSideCameras = {};
     var cubeSideCameraSetting, cubeSideCamera;
     for(var cubeSideCameraId in CUBE_CAMERA_SETTINGS) {
         cubeSideCameraSetting = CUBE_CAMERA_SETTINGS[cubeSideCameraId];

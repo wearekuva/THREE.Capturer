@@ -8,13 +8,13 @@ function MethodOds(cfg) {
 
     _super.constructor.call(this, mixIn({
         method: 'ODS',
-        width: 4096,
+        size: 4096,
         ipd: 0.064
-
     }, cfg));
-    this.height = this.width;
+    this.width = this.size;
+    this.height = this.size;
     this.viewWidth = this.width;
-    this.viewHeight = this.height * 0.5;
+    this.viewHeight = this.height >> 1;
     this.pixelWidthRenderTarget = fboHelper.createRenderTarget(1, 1);
     this.pixelWidthRenderTarget.depthBuffer = true;
     this.pixelWidthRenderTarget.stencilBuffer = true;

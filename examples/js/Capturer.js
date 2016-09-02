@@ -168,7 +168,7 @@ function Capturer(cfg) {
 var _p = Capturer.prototype;
 Capturer.methods = {
     ODS : require(9),
-    Cube : require(8)
+    Equirectangular : require(8)
 };
 _p.render = render;
 _p.capture = capture;
@@ -182,7 +182,7 @@ function render(renderTarget, forceClear) {
 
 function capture(cb) {
 
-    this.renderer.domElement.toBlob(toBlob.bind(this, cb), 'image/' + this.fileType );
+    this.renderer.domElement.toBlob(toBlob.bind(this, cb), 'image/' + (this.fileType === 'jpg' ? 'jpeg' : this.fileType));
 
 }
 
@@ -321,10 +321,7 @@ function Method(cfg) {
 
     THREE.Object3D.call( this );
 
-    mixIn(this, {
-        width: 0,
-        height: 0
-    }, cfg);
+    mixIn(this, cfg);
 }
 
 module.exports = Method;
@@ -363,17 +360,17 @@ var CUBE_CAMERA_SETTINGS = {
 
 function MethodCube(cfg) {
     _super.constructor.call(this, mixIn({
-        method: 'Cube',
-        width: 4096,
-        height: 2048,
+        method: 'Equirectangular',
+        size: 4096,
         cubeSize: 2048,
-        cubeSideCameras: {}
     }, cfg));
-
+    this.width = this.size;
+    this.height = this.width >> 1;
     this.cubeRenderTarget = new THREE.WebGLRenderTargetCube(this.cubeSize, this.cubeSize, {
         format: THREE.RGBFormat, magFilter: THREE.LinearFilter, minFilter: THREE.LinearFilter
     });
 
+    this.cubeSideCameras = {};
     var cubeSideCameraSetting, cubeSideCamera;
     for(var cubeSideCameraId in CUBE_CAMERA_SETTINGS) {
         cubeSideCameraSetting = CUBE_CAMERA_SETTINGS[cubeSideCameraId];
@@ -439,13 +436,13 @@ function MethodOds(cfg) {
 
     _super.constructor.call(this, mixIn({
         method: 'ODS',
-        width: 4096,
+        size: 4096,
         ipd: 0.064
-
     }, cfg));
-    this.height = this.width;
+    this.width = this.size;
+    this.height = this.size;
     this.viewWidth = this.width;
-    this.viewHeight = this.height * 0.5;
+    this.viewHeight = this.height >> 1;
     this.pixelWidthRenderTarget = fboHelper.createRenderTarget(1, 1);
     this.pixelWidthRenderTarget.depthBuffer = true;
     this.pixelWidthRenderTarget.stencilBuffer = true;

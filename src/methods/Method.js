@@ -4,10 +4,7 @@ function Method(cfg) {
 
     THREE.Object3D.call( this );
 
-    mixIn(this, {
-        width: 0,
-        height: 0
-    }, cfg);
+    mixIn(this, cfg);
 }
 
 module.exports = Method;

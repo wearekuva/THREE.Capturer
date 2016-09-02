@@ -24,7 +24,7 @@ function Capturer(cfg) {
 var _p = Capturer.prototype;
 Capturer.methods = {
     ODS : require('./methods/MethodOds'),
-    Cube : require('./methods/MethodCube')
+    Equirectangular : require('./methods/MethodEquirectangular')
 };
 _p.render = render;
 _p.capture = capture;
@@ -38,7 +38,7 @@ function render(renderTarget, forceClear) {
 
 function capture(cb) {
 
-    this.renderer.domElement.toBlob(toBlob.bind(this, cb), 'image/' + this.fileType );
+    this.renderer.domElement.toBlob(toBlob.bind(this, cb), 'image/' + (this.fileType === 'jpg' ? 'jpeg' : this.fileType));
 
 }
 

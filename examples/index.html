@@ -7,83 +7,156 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet">
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/index.css">
     </head>
     <body>
+
+        <canvas></canvas>
+        <div class="vignette"></div>
+        <div class="message"><div class="message-inner">Capturing<span>. ODS capturing requires significantly longer processing time.</span></div></div>
+        <div class="footer cache">
+            <a class="footer-logo" href="https://kuva.io/" target="_blank">
+                <div class="footer-logo-hover">
+                    <div class="footer-logo-hover-inner"></div>
+                </div>
+            </a>
+            <div class="footer-text"><a href="https://github.com/wearekuva/THREE.Capturer" target="_blank">THREE.Capturer</a> is a simple helper created by <a href="https://kuva.io/" target="_blank">KUVA</a> to export<br/><a href="http://threejs.org/" target="_blank">THREE.JS</a> content into Equirectangular format and <a href="https://developers.google.com/cardboard/jump/rendering-ods-content.pdf" target="_blank">ODS(VR) format</a> image.<br/>In this demo page, you can capture the 3D scene into a png by clicking the capture buttons on the <a href="https://github.com/wearekuva/oui" target="_blank">OUI</a> panel.</div>
+        </div>
         <script src="js/three.r79.min.js"></script>
         <script src="js/OrbitControls.js"></script>
+        <script src="js/OBJLoader.js"></script>
         <script src="js/capturer.js"></script>
         <script src="js/oui.min.js"></script>
         <script>
 
+        var THREE = window.THREE;
         var time = 0;
-        var renderer, scene, camera;
-        var capturer, odsMethod, cubeMethod;
+        var renderer, scene, camera, controls;
+        var capturer, odsMethod, equirectangularMethod;
+        var geometry;
+        var suzannes = [];
+        var light1, light2, light3;
+        var isCapturing = false;
+        var guiConfig = {
+            modelSpeed: 0.005,
+            lightSpeed: 0.025
+        };
+        var lightTime = 0;
+        var canvas = document.querySelector( 'canvas' );
+        var message = document.querySelector( '.message' );
+        var footer = document.querySelector( '.footer' );
+        var canvasOpacity = 0;
+        var footerOpacity = 0;
+        var footerY = 15;
 
-        window.addEventListener( 'load', init);
+        window.addEventListener( 'load', preload );
+
+        function preload() {
+
+            var loader = new THREE.OBJLoader();
+            loader.load( 'models/suzanne.obj', function( object ) {
+
+                geometry = object.children[ 0 ].geometry;
+                init();
+
+            } );
+
+        }
 
         function init() {
 
-            renderer = new THREE.WebGLRenderer();
-            renderer.setClearColor( 0xf0f0f0 );
-            document.body.appendChild(renderer.domElement);
+            renderer = new THREE.WebGLRenderer( {
+                antialias: true,
+                canvas: canvas
+            } );
+            renderer.setClearColor( 0x141312 );
 
-            camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
-            camera.position.set( 1,1,1 );
+            camera = new THREE.PerspectiveCamera( 70, 1, 0.01, 500 );
+            camera.position.set( 0, 0, 0.0001 );
 
             scene = new THREE.Scene();
+            scene.fog = new THREE.Fog( 0x141312, 2, 5 );
 
-            capturer = new THREE.Capturer({
+            capturer = new THREE.Capturer( {
                 renderer : renderer,
                 camera : camera,
                 scene : scene
-            });
+            } );
             odsMethod = new THREE.Capturer.methods.ODS();
-            cubeMethod = new THREE.Capturer.methods.Cube();
+            equirectangularMethod = new THREE.Capturer.methods.Equirectangular();
 
             controls = new THREE.OrbitControls( camera, renderer.domElement );
+            controls.rotateSpeed = - 1;
 
-            var light = new THREE.DirectionalLight( 0xffffff, 1 );
-            light.position.set( 1, 1, 1 ).normalize();
-            scene.add( light );
+            light1 = new THREE.PointLight( 0xff005a, 2.8, 8 );
+            scene.add( light1 );
 
-            var geometry = new THREE.BoxBufferGeometry( 0.2, 0.2, 0.2 );
+            light2 = new THREE.PointLight( 0x00e4ff, 2.8, 8 );
+            scene.add( light2 );
 
+            light3 = new THREE.PointLight( 0xffae00, 0.8, 8 );
+            scene.add( light3 );
+
+            var textureLoader = new THREE.TextureLoader();
+            var texture = textureLoader.load( 'models/suzanne.jpg' );
+            var material = new THREE.MeshPhysicalMaterial( {
+                color: 0xffffff,
+                roughness: 1,
+                metalness: 0.8,
+                map: texture,
+                shading: THREE.FlatShading
+            } );
+
+            var r;
             for ( var i = 0; i < 2000; i ++ ) {
 
-                var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+                var object = new THREE.Mesh( geometry, material );
 
-                object.position.x = Math.random() * 8 - 4;
-                object.position.y = Math.random() * 8 - 4;
-                object.position.z = Math.random() * 8 - 4;
+                object.position.x = Math.random() * 10 - 5;
+                object.position.y = Math.random() * 10 - 5;
+                object.position.z = Math.random() * 10 - 5;
+                r = object.position.length();
+                object.position.normalize().multiplyScalar( Math.max( 1.5, r ) );
 
                 object.rotation.x = Math.random() * 2 * Math.PI;
                 object.rotation.y = Math.random() * 2 * Math.PI;
                 object.rotation.z = Math.random() * 2 * Math.PI;
 
-                object.scale.x = Math.random() + 0.5;
-                object.scale.y = Math.random() + 0.5;
-                object.scale.z = Math.random() + 0.5;
+                object.scale.multiplyScalar( ( Math.random() + 0.5 ) * 0.2 );
 
+                suzannes.push( object );
                 scene.add( object );
 
             }
 
-            window.addEventListener('resize', onResize);
+            window.addEventListener( 'resize', onResize );
 
-            var guiConfig = {
-                captureODS: capture.bind(this, odsMethod),
-                captureCube: capture.bind(this, cubeMethod)
-            };
             var oui = window.oui;
-            gui = oui.datoui({ label: 'capturer', open: true });
-            gui.add(guiConfig, 'captureODS');
-            gui.add(guiConfig, 'captureCube');
+
+            var speedGui = oui.datoui( { label: 'speed', open: true } );
+            speedGui.add( guiConfig, 'modelSpeed', { label: 'model rotation speed', min: 0, max: 0.03, step: 0.0001 } );
+            speedGui.add( guiConfig, 'lightSpeed', { label: 'light speed', min: 0, max: 0.08, step: 0.0001 } );
+
+            var colorsGui = oui.datoui( { label: 'light color', open: true } );
+            colorsGui.add( light1, 'color', { control: oui.controls.ColorPicker, label: 'light1' } );
+            colorsGui.add( light2, 'color', { control: oui.controls.ColorPicker, label: 'light2' } );
+            colorsGui.add( light3, 'color', { control: oui.controls.ColorPicker, label: 'light3' } );
+
+            guiConfig.captureODS = capture.bind( this, odsMethod );
+            guiConfig.captureEquirectangular = capture.bind( this, equirectangularMethod );
+
+            var capturerGui = oui.datoui( { label: 'capturer', open: true } );
+            capturerGui.add( guiConfig, 'captureODS' );
+            capturerGui.add( guiConfig, 'captureEquirectangular' );
+
+            footer.style.visibility = 'visible';
 
             onResize();
             resetTime();
             animate();
+
         }
 
         function onResize() {
@@ -96,29 +169,81 @@
         }
 
         function resetTime() {
+
             time = Date.now();
+
         }
 
         function animate() {
+
             var newTime = Date.now();
-            requestAnimationFrame(animate);
-            render((newTime - time) / 1000);
+            requestAnimationFrame( animate );
+            render( ( newTime - time ) / 1000 );
             time = newTime;
-        }
-
-        function render(dt) {
-
-            renderer.render(scene, camera);
 
         }
 
-        function capture(method) {
+        function render( dt ) {
+
+            canvas.style.opacity = canvasOpacity = Math.min( 1, canvasOpacity + 0.01 );
+            footer.style.opacity = footerOpacity = Math.min( 1, footerOpacity + 0.05 );
+            footer.style.transform = 'translate3d(0,' + ( footerY -= footerY * 0.05 ) + 'px,0)';
+
+            if ( ! isCapturing ) {
+
+                var object;
+                var modelSpeed = guiConfig.modelSpeed;
+                lightTime += guiConfig.lightSpeed;
+
+                for ( var i = 0, len = suzannes.length; i < len; i ++ ) {
+
+                    object = suzannes[ i ];
+
+                    object.rotation.x += modelSpeed;
+                    object.rotation.y += modelSpeed;
+                    object.rotation.z += modelSpeed;
+
+                }
+
+                light1.position.x = Math.sin( lightTime ) * 4;
+                light1.position.y = Math.sin( lightTime + 41.53 ) * 4;
+                light1.position.z = Math.sin( lightTime + 52.6284 ) * 4;
+
+                light2.position.x = Math.sin( lightTime + 62.613 ) * 4;
+                light2.position.y = Math.sin( lightTime + 1423.27213 ) * 4;
+                light2.position.z = Math.sin( lightTime + 421.723 ) * 4;
+
+                light3.position.x = Math.sin( lightTime + 5211.5412 ) * 4;
+                light3.position.y = Math.sin( lightTime + 51.512 ) * 4;
+                light3.position.z = Math.sin( lightTime + 32144.624 ) * 4;
+
+                renderer.render( scene, camera );
+
+            }
+
+        }
+
+        function capture( method ) {
+
+            if ( isCapturing ) return;
+            isCapturing = true;
             capturer.method = method;
-            capturer.render();
-            capturer.capture(function(){
-                console.log('complete');
-                onResize();
-            });
+            message.classList.toggle( 'is-ods', method === odsMethod );
+            message.style.display = 'block';
+            setTimeout( function() {
+
+                capturer.render();
+                capturer.capture( function() {
+
+                    console.log( 'complete' );
+                    message.style.display = 'none';
+                    isCapturing = false;
+                    onResize();
+
+                } );
+
+            }, 20 );
+
         }
 
         </script>
