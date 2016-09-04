@@ -166,3 +166,40 @@ a.footer-logo {
 .footer-text a:hover:before {
     transform: scale3d(1,1,1);
 }
+
+@media all and (max-width: 767px) {
+
+    .message-inner {
+        font-size: 14px;
+    }
+
+    .footer-text {
+        left: 110px;
+        right: 20px;
+        font-size: 11px;
+    }
+
+    .footer-text br {
+        display: none;
+    }
+
+    .footer {
+        height: 140px;
+        padding: 20px 20px;
+    }
+
+    .footer-logo {
+        transform-origin: 0 50%;
+        transform: scale(0.75, 0.75);
+    }
+
+}
+
+@media all and (max-width: 400px) {
+
+    .footer-text {
+        font-size: 10px;
+    }
+
+}
+

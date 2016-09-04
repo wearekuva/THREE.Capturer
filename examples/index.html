@@ -22,7 +22,7 @@
                     <div class="footer-logo-hover-inner"></div>
                 </div>
             </a>
-            <div class="footer-text"><a href="https://github.com/wearekuva/THREE.Capturer" target="_blank">THREE.Capturer</a> is a simple helper created by <a href="https://kuva.io/" target="_blank">KUVA</a> to export<br/><a href="http://threejs.org/" target="_blank">THREE.JS</a> content into Equirectangular format and <a href="https://developers.google.com/cardboard/jump/rendering-ods-content.pdf" target="_blank">ODS(VR) format</a> image.<br/>In this demo page, you can capture the 3D scene into a png by clicking the capture buttons on the <a href="https://github.com/wearekuva/oui" target="_blank">OUI</a> panel.</div>
+            <div class="footer-text"><a href="https://github.com/wearekuva/THREE.Capturer" target="_blank">THREE.Capturer</a> is a simple helper created by <a href="https://kuva.io/" target="_blank">KUVA</a> to export <br/><a href="http://threejs.org/" target="_blank">THREE.JS</a> content into Equirectangular format and <a href="https://developers.google.com/cardboard/jump/rendering-ods-content.pdf" target="_blank">ODS(VR) format</a> image. <br/>In this demo page, you can capture the 3D scene into a png by clicking the capture buttons on the <a href="https://github.com/wearekuva/oui" target="_blank">OUI</a> panel.</div>
         </div>
         <script src="js/three.r79.min.js"></script>
         <script src="js/OrbitControls.js"></script>
@@ -32,6 +32,7 @@
         <script>
 
         var THREE = window.THREE;
+        var oui = window.oui;
         var time = 0;
         var renderer, scene, camera, controls;
         var capturer, odsMethod, equirectangularMethod;
@@ -80,9 +81,15 @@
             scene.fog = new THREE.Fog( 0x141312, 2, 5 );
 
             capturer = new THREE.Capturer( {
+
                 renderer : renderer,
                 camera : camera,
-                scene : scene
+                scene : scene,
+
+                fileName: 'download',
+                fileType: 'jpg',
+                imageQuality: 0.75
+
             } );
             odsMethod = new THREE.Capturer.methods.ODS();
             equirectangularMethod = new THREE.Capturer.methods.Equirectangular();
@@ -133,13 +140,13 @@
 
             window.addEventListener( 'resize', onResize );
 
-            var oui = window.oui;
-
-            var speedGui = oui.datoui( { label: 'speed', open: true } );
+            var isFolderOpen = ( window.screen ? window.screen.width : window.innerWidth ) > 1024;
+            var gui = oui.datoui( { label: 'settings', open: true } );
+            var speedGui = gui.addFolder( { label: 'speed', open: isFolderOpen } );
             speedGui.add( guiConfig, 'modelSpeed', { label: 'model rotation speed', min: 0, max: 0.03, step: 0.0001 } );
             speedGui.add( guiConfig, 'lightSpeed', { label: 'light speed', min: 0, max: 0.08, step: 0.0001 } );
 
-            var colorsGui = oui.datoui( { label: 'light color', open: true } );
+            var colorsGui = gui.addFolder( { label: 'light color', open: isFolderOpen } );
             colorsGui.add( light1, 'color', { control: oui.controls.ColorPicker, label: 'light1' } );
             colorsGui.add( light2, 'color', { control: oui.controls.ColorPicker, label: 'light2' } );
             colorsGui.add( light3, 'color', { control: oui.controls.ColorPicker, label: 'light3' } );
@@ -147,7 +154,7 @@
             guiConfig.captureODS = capture.bind( this, odsMethod );
             guiConfig.captureEquirectangular = capture.bind( this, equirectangularMethod );
 
-            var capturerGui = oui.datoui( { label: 'capturer', open: true } );
+            var capturerGui = gui.addFolder( { label: 'capturer', open: isFolderOpen } );
             capturerGui.add( guiConfig, 'captureODS' );
             capturerGui.add( guiConfig, 'captureEquirectangular' );
 

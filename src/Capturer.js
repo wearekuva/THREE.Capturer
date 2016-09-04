@@ -9,6 +9,7 @@ function Capturer(cfg) {
 
         fileName: 'capture',
         fileType: 'png',
+        imageQuality: 0.8,
 
         renderer: undef,
         camera: undef,
@@ -38,7 +39,39 @@ function render(renderTarget, forceClear) {
 
 function capture(cb) {
 
-    this.renderer.domElement.toBlob(toBlob.bind(this, cb), 'image/' + (this.fileType === 'jpg' ? 'jpeg' : this.fileType));
+    if (!HTMLCanvasElement.prototype.toBlob) {
+        Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+            value: function (callback, type, quality) {
+
+            var binStr = atob( this.toDataURL(type, quality).split(',')[1] ),
+            len = binStr.length,
+            arr = new Uint8Array(len);
+
+            for (var i=0; i<len; i++ ) {
+                arr[i] = binStr.charCodeAt(i);
+            }
+
+            callback( new Blob( [arr], {type: type || 'image/png'} ) );
+            }
+        });
+    }
+    var domElement = this.renderer.domElement;
+    var fileType = 'image/' + (this.fileType === 'jpg' ? 'jpeg' : this.fileType);
+    var imageQuality = this.imageQuality;
+
+    if(domElement.toBlob) {
+        domElement.toBlob(toBlob.bind(this, cb), fileType, imageQuality);
+    } else {
+
+        // polyfill based on https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob#Polyfill
+        var binStr = atob( domElement.toDataURL(fileType, imageQuality).split(',')[1] );
+        var len = binStr.length;
+        var arr = new Uint8Array(len);
+        for (var i = 0; i < len; i++ ) {
+            arr[i] = binStr.charCodeAt(i);
+        }
+        toBlob.call( this,  cb, new Blob( [arr], {type: fileType} ));
+    }
 
 }
 

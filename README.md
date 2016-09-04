@@ -1,7 +1,7 @@
 ## THREE.Capturer
-**THREE.Capturer** is a simple helper created by KUVA to export THREE.JS content into Equirectangular format and [ODS(VR) format](https://developers.google.com/cardboard/jump/rendering-ods-content.pdf) image.
+**THREE.Capturer** is a simple helper created by **[KUVA](https://kuva.io/)** to export **[THREE.JS](threejs.org)** content into Equirectangular format and **[ODS(VR) format](https://developers.google.com/cardboard/jump/rendering-ods-content.pdf)** image.
 
-**Check out the demo here**
+**[Check out the demo here](https://kuva.io/THREE.Capturer/)**
 
 ### Gallery
 
@@ -69,6 +69,7 @@ To use this helper, you need to include the THREE.JS library before the helper.
 
 ### TODO
 - Fix the half pixel offset issue in ODS
+- Mobile support for the demo page
 
 ### Development and deployment
 - dev: `node dev`
