@@ -27,7 +27,7 @@ function runBuild (f) {
       console.log('Compressing', f);
       src = src.toString();
       fs.writeFileSync('dist/' + f, src);
-      fs.writeFileSync('examples/js/' + f, src);
+      fs.writeFileSync('docs/js/' + f, src);
       var result = UglifyJS.minify(src, { fromString: true });
       console.log('Writing', f);
       fs.writeFileSync('dist/' + f.replace('.js','.min.js'), result.code);

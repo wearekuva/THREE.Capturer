@@ -8,7 +8,7 @@ var entryPath = path.resolve('src', 'Capturer.js');
 budo(entryPath, {
     serve: 'js/Capturer.js',
     live: true,
-    dir: __dirname + '/examples',
+    dir: __dirname + '/docs',
     stream: process.stdout,
     defaultIndex: function (opt) {
         var html = 'index.html';
