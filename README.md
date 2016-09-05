@@ -69,7 +69,7 @@ To use this helper, you need to include the THREE.JS library before the helper.
 
 ### TODO
 - Fix the half pixel offset issue in ODS
-- Mobile support for the demo page
+- ~~Mobile support for the demo page~~
 
 ### Development and deployment
 - dev: `node dev`

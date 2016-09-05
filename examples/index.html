@@ -108,6 +108,7 @@
 
             var textureLoader = new THREE.TextureLoader();
             var texture = textureLoader.load( 'models/suzanne.jpg' );
+            texture.anisotropy = 3;
             var material = new THREE.MeshPhysicalMaterial( {
                 color: 0xffffff,
                 roughness: 1,
