@@ -1,7 +1,9 @@
 ## THREE.Capturer
 **THREE.Capturer** is a simple helper created by **[KUVA](https://kuva.io/)** to export **[THREE.JS](threejs.org)** content into Equirectangular format and **[ODS(VR) format](https://developers.google.com/cardboard/jump/rendering-ods-content.pdf)** image.
 
-**[Check out the demo here](https://kuva.io/THREE.Capturer/)**
+Check out the **[live demo here](https://kuva.io/THREE.Capturer/)**
+
+If you have a cardboard device, you can check out the still frame ODS export from the demo site on **[Youtube here](https://kuva.io/THREE.Capturer/)**.
 
 ### Gallery
 
