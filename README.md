@@ -3,7 +3,7 @@
 
 Check out the **[live demo here](https://kuva.io/THREE.Capturer/)**
 
-If you have a cardboard device, you can check out the still frame ODS export from the demo site on **[Youtube here](https://kuva.io/THREE.Capturer/)**.
+If you have a cardboard device, you can check out the still frame ODS export from the demo site on **[Youtube here](https://www.youtube.com/watch?v=CBII29aayqc)**.
 
 ### Gallery
 
